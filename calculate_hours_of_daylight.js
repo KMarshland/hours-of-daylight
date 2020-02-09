@@ -53,15 +53,18 @@ function calculateSolarMeanAngularVelocity() {
 /**
  * Calculates the length of the path of the sun across the sky
  *
- * @param {Number} trueAnomaly  - true anomaly for the day, in radians
- * @param {Number} latitude     - latitude in degrees of the point you care about
- * @param {Number} daysPerYear  - how many days it takes your planet to circle the sun. 365 for earth
- * @param {Number} eccentricity - eccentricity of the orbit. 0.0167 for earth
- * @param {Number} axialTilt    - how much the planet is tilted, in degrees. -23.44 for earth
- * @param {Boolean} debug       - whether or not to print partial results
+ * @param {Number} trueAnomaly   - true anomaly for the day, in radians
+ * @param {Number} latitude      - latitude in degrees of the point you care about
+ * @param {Number} daysPerYear   - how many days it takes your planet to circle the sun. 365 for earth
+ * @param {Number} eccentricity  - eccentricity of the orbit. 0.0167 for earth
+ * @param {Number} axialTilt     - how much the planet is tilted, in degrees. -23.44 for earth
+ * @param {Number} semiMajorAxis - distance from the planet to the sun at its furthest point in meters. 149.60×10^6 km for earth
+ * @param {Number} solarRadius   - radius of the sun in meters. 695500 kilometers for the sum
+ * @param {Number} refractionAtSunset   - how much atmospheric refraction distends the sun at sunset, in degrees. 0.3 degrees on earth
+ * @param {Boolean} debug        - whether or not to print partial results
  * @return {Number}
  */
-function calculateAngularSolarPathLength(trueAnomaly, latitude, daysPerYear, eccentricity, axialTilt, debug=true) {
+function calculateAngularSolarPathLength(trueAnomaly, latitude, {daysPerYear, eccentricity, axialTilt, semiMajorAxis, solarRadius, refractionAtSunset}, debug=true) {
     const lastSolsticeDay = 349; // TODO: don't hardcode this
     const theta = axialTilt * Math.PI/180; // axial tilt in radians
     const phi = latitude * Math.PI/180; // latitude in radians
@@ -79,7 +82,11 @@ function calculateAngularSolarPathLength(trueAnomaly, latitude, daysPerYear, ecc
 
     // if we were assuming the sun were a point source, we would have const pm_cos_omega_0 = -Math.tan(phi)*Math.tan(solarDeclination);
     // instead, use https://en.wikipedia.org/wiki/Sunrise_equation#Generalized_equation
-    const solarDiscCenter = -0.83*Math.PI/180; // TODO: calculate this based on the radius of the sun
+    const solarDiscCenter = -2*Math.asin(solarRadius/semiMajorAxis) - refractionAtSunset*Math.PI/180;
+    if (debug) {
+        console.log(`Solar disc center is ${(solarDiscCenter*180/Math.PI).toFixed(2)} degrees`)
+    }
+
     const pm_cos_omega_0 = (Math.sin(solarDiscCenter) - Math.sin(phi) * Math.sin(solarDeclination))/(Math.cos(phi) * Math.cos(solarDeclination));
 
     return 2 * Math.acos(pm_cos_omega_0);
@@ -95,10 +102,12 @@ function calculateAngularSolarPathLength(trueAnomaly, latitude, daysPerYear, ecc
  * @param {Number} massOfSun        - mass of the sun, in kg. 1.989 x 10^30 kg for Sol
  * @param {Number} axialTilt        - how much the planet is tilted, in degrees. -23.44 for earth
  * @param {Number} latitude         - latitude in degrees of the point you care about
+ * @param {Number} solarRadius      - radius of the sun in meters. 695500 kilometers for the sum
+ * @param {Number} refractionAtSunset   - how much atmospheric refraction distends the sun at sunset, in degrees. 0.3 degrees on earth
  * @param {Boolean} debug           - whether or not to print partial results
  * @return {Number}
  */
-function calculateHoursOfDaylight({ orbitDay, daysPerYear=365, eccentricity=0.0167, semiMajorAxis= 1496e8, massOfSun=1.989e30, axialTilt=-23.44, latitude=52 }={}, debug=false) {
+function calculateHoursOfDaylight({ orbitDay, latitude, daysPerYear=365, eccentricity=0.0167, semiMajorAxis= 1496e8, massOfSun=1.989e30, axialTilt=-23.44, solarRadius=696.34e6, refractionAtSunset=0.3 }={}, debug=false) {
     const v = calculateTrueAnomaly(35, daysPerYear, eccentricity);
 
     if (debug) {
@@ -110,7 +119,9 @@ function calculateHoursOfDaylight({ orbitDay, daysPerYear=365, eccentricity=0.01
         console.log(`Angular velocity is ${(10e4 * r * 180 / Math.PI).toFixed(2)} x 10^-5 degrees per second`);
     }
 
-    const angularSolarPathLength = calculateAngularSolarPathLength(v, latitude, daysPerYear, eccentricity, axialTilt, debug);
+    const angularSolarPathLength = calculateAngularSolarPathLength(v, latitude, {
+        daysPerYear, eccentricity, axialTilt, semiMajorAxis, solarRadius, refractionAtSunset
+    }, debug);
     if (debug) {
         console.log(`Angular solar path length is ${(angularSolarPathLength * 180 / Math.PI).toFixed(2)} degrees`);
     }

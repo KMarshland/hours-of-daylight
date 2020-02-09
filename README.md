@@ -12,8 +12,13 @@ Pull requests to fix these welcome.
 
  - The day length is precisely 24 hours. This will not hold true on most exoplanets and **will make results wrong**
  - The most recent solstice was winter solstice, which came 349 days into the year. This **will make results wrong**
- - The angular size of the sun is the same as that from Sol to Earth. This may throw answers off by a few minutes
+ - The orbit is roughly circular. Rather than calculating the exact apparent angular size of the sun, it calculates the apparent angular size of the sun at aphelion. 
  - The earth year is exactly 365 days. This will only cause problems when using it as a default.
+
+## Other notes
+
+ - Solar radius is only used to calculate the apparent size of the sun, such that "setting" means the rim of the sun (ie, not the center of the sun) is below the horizon. You can pass 0 for solar radius to pretend it is a point source.
+ - Refraction at sunset has a default from the earth. Calculating it is [somewhat involved](https://en.wikipedia.org/wiki/Atmospheric_refraction#Calculating_refraction). You can pass 0 for no atmosphere, assume your exoplanet has an earth-like atmosphere (it probably doesn't, but this isn't that big a factor), or do the calculation yourself.
 
 ## License
 MIT 
