@@ -10,8 +10,8 @@ Formulae based on [https://worldbuilding.stackexchange.com/a/167909/13378](https
 These assumptions simplify the math, but make the result incorrect in some scenarios.
 Pull requests to fix these welcome.
 
- - The day length is precisely 24 hours. This will not hold true on most exoplanets and **will make results wrong**
  - The most recent solstice was winter solstice, which came 349 days into the year. This **will make results wrong**
+ - Average solar day length is equal to day length. This [isn't actually true](https://en.wikipedia.org/wiki/Equation_of_time#Equation_of_time) and will throw answers off by a few minutes (roughly 4 minutes for earth).
  - The orbit is roughly circular. Rather than calculating the exact apparent angular size of the sun, it calculates the apparent angular size of the sun at aphelion. 
  - The earth year is exactly 365 days. This will only cause problems when using it as a default.
 

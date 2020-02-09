@@ -45,9 +45,14 @@ function calculateAngularVelocity(trueAnomaly, semiMajorAxis, eccentricity, mass
     return h/(r**2);
 }
 
-function calculateSolarMeanAngularVelocity() {
-    // TODO
-    return 2*Math.PI/24/60/60;
+/**
+ * Calculates the mean solar angular velocity in radians per second
+ *
+ * @param {Number} secondsPerDay - number of seconds in a day. 24*60*60 (ish) on earth
+ * @return {number}
+ */
+function calculateSolarMeanAngularVelocity(secondsPerDay) {
+    return 2*Math.PI/secondsPerDay;
 }
 
 /**
@@ -59,7 +64,7 @@ function calculateSolarMeanAngularVelocity() {
  * @param {Number} eccentricity  - eccentricity of the orbit. 0.0167 for earth
  * @param {Number} axialTilt     - how much the planet is tilted, in degrees. -23.44 for earth
  * @param {Number} semiMajorAxis - distance from the planet to the sun at its furthest point in meters. 149.60×10^6 km for earth
- * @param {Number} solarRadius   - radius of the sun in meters. 695500 kilometers for the sum
+ * @param {Number} solarRadius   - radius of the sun in meters. 695500 kilometers for the sun
  * @param {Number} refractionAtSunset   - how much atmospheric refraction distends the sun at sunset, in degrees. 0.3 degrees on earth
  * @param {Boolean} debug        - whether or not to print partial results
  * @return {Number}
@@ -102,12 +107,13 @@ function calculateAngularSolarPathLength(trueAnomaly, latitude, {daysPerYear, ec
  * @param {Number} massOfSun        - mass of the sun, in kg. 1.989 x 10^30 kg for Sol
  * @param {Number} axialTilt        - how much the planet is tilted, in degrees. -23.44 for earth
  * @param {Number} latitude         - latitude in degrees of the point you care about
- * @param {Number} solarRadius      - radius of the sun in meters. 695500 kilometers for the sum
+ * @param {Number} secondsPerDay    - number of seconds in a day. 24*60*60 (ish) on earth
+ * @param {Number} solarRadius      - radius of the sun in meters. 695500 kilometers for the sun
  * @param {Number} refractionAtSunset   - how much atmospheric refraction distends the sun at sunset, in degrees. 0.3 degrees on earth
  * @param {Boolean} debug           - whether or not to print partial results
  * @return {Number}
  */
-function calculateHoursOfDaylight({ orbitDay, latitude, daysPerYear=365, eccentricity=0.0167, semiMajorAxis= 1496e8, massOfSun=1.989e30, axialTilt=-23.44, solarRadius=696.34e6, refractionAtSunset=0.3 }={}, debug=false) {
+function calculateHoursOfDaylight({ orbitDay, latitude, secondsPerDay=24*60*60, daysPerYear=365.259, eccentricity=0.0167, semiMajorAxis= 1496e8, massOfSun=1.989e30, axialTilt=-23.44, solarRadius=696.34e6, refractionAtSunset=0.3 }={}, debug=false) {
     const v = calculateTrueAnomaly(35, daysPerYear, eccentricity);
 
     if (debug) {
@@ -126,7 +132,7 @@ function calculateHoursOfDaylight({ orbitDay, latitude, daysPerYear=365, eccentr
         console.log(`Angular solar path length is ${(angularSolarPathLength * 180 / Math.PI).toFixed(2)} degrees`);
     }
 
-    const dayLength = angularSolarPathLength/calculateSolarMeanAngularVelocity();
+    const dayLength = angularSolarPathLength/calculateSolarMeanAngularVelocity(secondsPerDay);
     if (debug) {
         console.log(`Day length length is ${Math.round(dayLength)} seconds`);
     }
