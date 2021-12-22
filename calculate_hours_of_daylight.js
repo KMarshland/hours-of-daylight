@@ -114,7 +114,7 @@ function calculateAngularSolarPathLength(trueAnomaly, latitude, {daysPerYear, la
  * @return {Number}
  */
 function calculateHoursOfDaylight({ orbitDay, latitude, lastSolsticeDay=349, secondsPerDay=24*60*60, daysPerYear=365.259, eccentricity=0.0167, semiMajorAxis= 1496e8, massOfSun=1.989e30, axialTilt=-23.44, solarRadius=696.34e6, refractionAtSunset=0.3 }={}, debug=false) {
-    const v = calculateTrueAnomaly(35, daysPerYear, eccentricity);
+    const v = calculateTrueAnomaly(orbitDay, daysPerYear, eccentricity);
 
     if (debug) {
         console.log(`True anomaly is ${(v * 180 / Math.PI).toFixed(2)} degrees`);
